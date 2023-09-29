@@ -1,13 +1,18 @@
-//files
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './Components/LoginPage';
+import MailBox from './Components/MailBox';
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <LoginPage/>
-    </div>
+    <Router>
+      <Routes>
+        {/* Define a route for the root location */}
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/Mailbox" element={<MailBox />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;

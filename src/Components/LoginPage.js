@@ -1,28 +1,57 @@
-import React, { useState } from "react";
+//files
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+//bootstrap files
 import { Card, Row, Col, Button, Container, Spinner } from "react-bootstrap";
+
+//icons
 import loginIcon from "../assests/login.png";
+import errorIcon from "../assests/error.png";
+import successIcon from "../assests/success.png";
+
+//images
 import LoginBg from "../assests/LoginBg.jpg";
 
 const LoginPage = () => {
   const [isSignUp, setIsSignUp] = useState(false); //Making the login page as the default
   const [spinner, setSpinner] = useState(false);
   const [message, setMessage] = useState("");
-
+  const navigate = useNavigate();
   const toggleView = () => {
     setIsSignUp((prevIsSignUp) => !prevIsSignUp);
     setMessage(""); // Clearing the message when switching between login and sign up
   };
 
+  useEffect(() => {
+    // Check if the login was successful and token exists in localStorage
+    if (message && !isSignUp) {
+      const token = localStorage.getItem("token");
+
+      if (token) {
+        // Navigate to MailBox after 3 seconds if token exists
+        const timer = setTimeout(() => {
+          navigate("/MailBox");
+        }, 1000); // 3000 milliseconds = 3 seconds
+
+        // Clear the timer if the component is unmounted or the message changes
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [message, isSignUp, navigate]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setSpinner(true);
     setMessage(""); // Clear previous message
-  
-    const signUpUrl = "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyA8pO5Mdfp_vbYWQIoo5DnPAhC7EdB0OgQ";
-    const loginUrl = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA8pO5Mdfp_vbYWQIoo5DnPAhC7EdB0OgQ";
-  
+
+    const signUpUrl =
+      "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyA8pO5Mdfp_vbYWQIoo5DnPAhC7EdB0OgQ";
+    const loginUrl =
+      "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA8pO5Mdfp_vbYWQIoo5DnPAhC7EdB0OgQ";
+
     const authUrl = isSignUp ? signUpUrl : loginUrl;
-  
+
     fetch(authUrl, {
       method: "POST",
       headers: {
@@ -40,13 +69,16 @@ const LoginPage = () => {
         if (data.error) {
           setMessage(`Error: ${data.error.message}`);
         } else {
-          
-          setMessage(isSignUp ? "Signed up successfully!" : "Logged in successfully!");
+          setMessage(
+            isSignUp ? "Signed up successfully!" : "Logged in successfully!"
+          );
           //displaying the user data on console
-          console.log('User Data:', data);
+          console.log("User Data:", data);
 
           //for storing token in localStorage
-          localStorage.setItem('token', data.idToken);
+          const token = data.idToken;
+          console.log("Show token: ", token);
+          localStorage.setItem("token", data.idToken);
         }
       })
       .catch((error) => {
@@ -54,11 +86,12 @@ const LoginPage = () => {
         setSpinner(false);
         setMessage(`Error: ${error}`);
       });
-      e.target.email.value = '';
-      e.target.password.value = '';
-      if(isSignUp) {e.target.confirmPassword.value = '';}
+    e.target.email.value = "";
+    e.target.password.value = "";
+    if (isSignUp) {
+      e.target.confirmPassword.value = "";
+    }
   };
-  
 
   return (
     <div
@@ -140,20 +173,72 @@ const LoginPage = () => {
                       </div>
                     )}
                     <div className="d-flex justify-content-center m-2">
-  {spinner && (
-    <>
-      <Spinner animation="grow" variant="primary" className="mr-2" />
-      <Spinner animation="grow" variant="secondary" className="mr-2" />
-      <Spinner animation="grow" variant="success" className="mr-2" />
-      <Spinner animation="grow" variant="danger" className="mr-2" />
-      <Spinner animation="grow" variant="warning" />
-    </>
-  )}
-</div>
+                      {spinner && (
+                        <>
+                          <Spinner
+                            animation="grow"
+                            variant="primary"
+                            className="mr-2"
+                          />
+                          <Spinner
+                            animation="grow"
+                            variant="secondary"
+                            className="mr-2"
+                          />
+                          <Spinner
+                            animation="grow"
+                            variant="success"
+                            className="mr-2"
+                          />
+                          <Spinner
+                            animation="grow"
+                            variant="danger"
+                            className="mr-2"
+                          />
+                          <Spinner animation="grow" variant="warning" />
+                        </>
+                      )}
+                    </div>
 
                     <div className="d-flex flex-column align-items-center">
-                    {message && (
-                        <div style={{ color: "black", backgroundColor: '#D8BFD8', padding: '0.25rem', paddingLeft: '1rem', paddingRight: '1rem', border: '0.1rem solid #DDA0DD' }}>{message}</div>
+                      {message && (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            backgroundColor: message.includes("successfully")
+                              ? "lightgreen"
+                              : "lightcoral",
+                            padding: "0.25rem",
+                            paddingLeft: "1rem",
+                            paddingRight: "1rem",
+                            border: "0.1rem solid green",
+                            boxShadow: "0 2px 5px"
+                          }}
+                        >
+                          {message.includes("successfully") ? (
+                            <img
+                              src={successIcon}
+                              alt="Success"
+                              style={{
+                                marginRight: "10px",
+                                width: "20px",
+                                height: "20px",
+                              }}
+                            />
+                          ) : (
+                            <img
+                              src={errorIcon}
+                              alt="Failure"
+                              style={{
+                                marginRight: "10px",
+                                width: "20px",
+                                height: "20px",
+                              }}
+                            />
+                          )}
+                          <span>{message}</span>
+                        </div>
                       )}
                       <Button
                         type="submit"
@@ -170,7 +255,6 @@ const LoginPage = () => {
                     </div>
                     <hr />
                     <div className="d-flex flex-column align-items-center">
-                      
                       <span>
                         {isSignUp
                           ? "Already have an account? "

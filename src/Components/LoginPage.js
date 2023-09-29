@@ -4,7 +4,7 @@ import loginIcon from "../assests/login.png";
 import LoginBg from "../assests/LoginBg.jpg";
 
 const LoginPage = () => {
-  const [isSignUp, setIsSignUp] = useState(false); // Default to login
+  const [isSignUp, setIsSignUp] = useState(false); //Making the login page as the default
   const [spinner, setSpinner] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -40,7 +40,11 @@ const LoginPage = () => {
         if (data.error) {
           setMessage(`Error: ${data.error.message}`);
         } else {
+          
           setMessage(isSignUp ? "Signed up successfully!" : "Logged in successfully!");
+          console.log('User Data:', data);
+          //for storing token in localStorage
+          localStorage.setItem('token', data.idToken);
         }
       })
       .catch((error) => {

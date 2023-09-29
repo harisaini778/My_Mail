@@ -42,7 +42,9 @@ const LoginPage = () => {
         } else {
           
           setMessage(isSignUp ? "Signed up successfully!" : "Logged in successfully!");
+          //displaying the user data on console
           console.log('User Data:', data);
+
           //for storing token in localStorage
           localStorage.setItem('token', data.idToken);
         }
@@ -138,30 +140,16 @@ const LoginPage = () => {
                       </div>
                     )}
                     <div className="d-flex justify-content-center m-2">
-                      {spinner ? (
-                        <Spinner
-                          animation="grow"
-                          variant="primary"
-                          className="mr-2"
-                        />
-                      ) : null}
-                      <Spinner
-                        animation="grow"
-                        variant="secondary"
-                        className="mr-2"
-                      />
-                      <Spinner
-                        animation="grow"
-                        variant="success"
-                        className="mr-2"
-                      />
-                      <Spinner
-                        animation="grow"
-                        variant="danger"
-                        className="mr-2"
-                      />
-                      <Spinner animation="grow" variant="warning" />
-                    </div>
+  {spinner && (
+    <>
+      <Spinner animation="grow" variant="primary" className="mr-2" />
+      <Spinner animation="grow" variant="secondary" className="mr-2" />
+      <Spinner animation="grow" variant="success" className="mr-2" />
+      <Spinner animation="grow" variant="danger" className="mr-2" />
+      <Spinner animation="grow" variant="warning" />
+    </>
+  )}
+</div>
 
                     <div className="d-flex flex-column align-items-center">
                     {message && (

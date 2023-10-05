@@ -79,6 +79,11 @@ const LoginPage = () => {
           const token = data.idToken;
           console.log("Show token: ", token);
           localStorage.setItem("token", data.idToken);
+          
+          //for storing email in localStorage
+          const email = data.email;
+          console.log("Show email: ", email);
+          localStorage.setItem("email", data.email);
         }
       })
       .catch((error) => {
@@ -241,12 +246,14 @@ const LoginPage = () => {
                         </div>
                       )}
                       <Button
-                        type="submit"
-                        style={{ backgroundColor: "#4B0082", border: "none" }}
-                        className="m-1"
-                      >
-                        {isSignUp ? "Sign Up" : "Login"}
-                      </Button>
+  type="submit"
+  className="m-1"
+  style={{ backgroundColor: "#4B0082", border: "none", width: "100%" }}
+>
+  {isSignUp ? "Sign Up" : "Login"}
+</Button>
+
+
                       {isSignUp ? null : (
                         <span style={{ color: "blue", marginTop: "0.25rem" }}>
                           Forgot Password?

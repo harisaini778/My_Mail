@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Form,
   Container,
@@ -47,24 +47,103 @@ const MailBox = () => {
   const [message, setMessage] = useState("");
   const [attachments, setAttachments] = useState([]);
   const [isComposeClicked, setIsComposeClicked] = useState(false);
+  const [UserName, setUserName] = useState("");
+
+  let sanitizedUserName;
+
+  useEffect(() => {
+    const emailId = localStorage.getItem("email");
+    const parts = emailId.split("@");
+    const name = parts[0];
+    setUserName(name);
+    localStorage.setItem("userName", name);
+
+    sanitizedUserName = UserName.replace(/[.#$[\]/]/g, '_'); // Replace special characters with underscores
+
+    // Update the username in Firebase
+    const firebaseUserEndpoint = `https://mailboxclient-b4491-default-rtdb.firebaseio.com/users/${sanitizedUserName}.json`;
+
+    fetch(firebaseUserEndpoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username: name }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Username updated in Firebase:", data);
+      })
+      .catch((error) => {
+        console.error("Error updating username in Firebase:", error);
+      });
+  }, []);
 
   const SendMailHandler = () => {
-    console.log("Sending email with message:", message);
+    const firebaseSentEmailsEndpoint = `https://mailboxclient-b4491-default-rtdb.firebaseio.com/users/sent/${sanitizedUserName}.json`;
+
+    const emailData = {
+      to,
+      ccBccOption,
+      subject,
+      message,
+      attachments,
+    };
+
+    fetch(firebaseSentEmailsEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(emailData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Email sent successfully:", data);
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
   };
 
   const DeleteMailHandler = () => {
+    // Implement the logic to delete the email here
     console.log("Deleting email");
   };
 
+  // const firebaseDraftsEmailsEndpoint = `https://mailboxclient-b4491-default-rtdb.firebaseio.com/drafts/${sanitizedUserName}.json`;
+
   const SaveMailHandler = () => {
-    console.log("Saving email as draft");
+    const firebaseDraftsEmailsEndpoint = `https://mailboxclient-b4491-default-rtdb.firebaseio.com/users/drafts/${sanitizedUserName}.json`;
+
+    const emailData = {
+      to,
+      ccBccOption,
+      subject,
+      message,
+      attachments,
+    };
+
+    fetch(firebaseDraftsEmailsEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(emailData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Email saved as draft:", data);
+      })
+      .catch((error) => {
+        console.error("Error saving email as draft:", error);
+      });
   };
 
   const handleFileInputChange = (event) => {
     const files = event.target.files;
     setAttachments([...attachments, ...files]);
   };
-
   return (
     <>
       <Header />
@@ -89,7 +168,6 @@ const MailBox = () => {
               }}
             >
               <Button
-                block
                 variant="primary"
                 className="mb-3"
                 onClick={() => setIsComposeClicked(!isComposeClicked)}
@@ -112,8 +190,8 @@ const MailBox = () => {
                       color: "#333",
                       padding: "5px",
                       display: "block",
-                      borderRadius: "5px",
                       transition: "background-color 0.3s",
+                      borderLeft: "solid purple 0.2rem",
                     }}
                   >
                     Inbox
@@ -127,7 +205,7 @@ const MailBox = () => {
                       color: "#333",
                       padding: "5px",
                       display: "block",
-                      borderRadius: "5px",
+                      borderLeft: "solid purple 0.2rem",
                       transition: "background-color 0.3s",
                     }}
                   >
@@ -142,7 +220,7 @@ const MailBox = () => {
                       color: "#333",
                       padding: "5px",
                       display: "block",
-                      borderRadius: "5px",
+                      borderLeft: "solid purple 0.2rem",
                       transition: "background-color 0.3s",
                     }}
                   >
@@ -157,7 +235,7 @@ const MailBox = () => {
                       color: "#333",
                       padding: "5px",
                       display: "block",
-                      borderRadius: "5px",
+                      borderLeft: "solid purple 0.2rem",
                       transition: "background-color 0.3s",
                     }}
                   >
@@ -172,7 +250,7 @@ const MailBox = () => {
                       color: "#333",
                       padding: "5px",
                       display: "block",
-                      borderRadius: "5px",
+                      borderLeft: "solid purple 0.2rem",
                       transition: "background-color 0.3s",
                     }}
                   >
@@ -276,22 +354,13 @@ const MailBox = () => {
                   <Row>
                     <Col className="d-flex justify-content-between">
                       <InputGroup>
-                        <Button
-                          variant="light"
-                          onClick={DeleteMailHandler}
-                        >
+                        <Button variant="light" onClick={DeleteMailHandler}>
                           <MdDelete /> Delete
                         </Button>
-                        <Button
-                          variant="light"
-                          onClick={SaveMailHandler}
-                        >
+                        <Button variant="light" onClick={SaveMailHandler}>
                           <MdDrafts /> Save as Draft
                         </Button>
-                        <Button
-                          variant="primary"
-                          onClick={SendMailHandler}
-                        >
+                        <Button variant="primary" onClick={SendMailHandler}>
                           <MdSend /> Send
                         </Button>
                       </InputGroup>

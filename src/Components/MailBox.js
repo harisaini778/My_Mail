@@ -12,6 +12,7 @@ import { MdDelete, MdDrafts, MdSend, MdArrowBack } from "react-icons/md";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import Header from "./Header";
+import Inbox from "./Inbox";
 import bgImage from "../assests/bgMailbox.jpg";
 
 const modules = {
@@ -48,7 +49,7 @@ const MailBox = () => {
   const [attachments, setAttachments] = useState([]);
   const [isComposeClicked, setIsComposeClicked] = useState(false);
   const [UserName, setUserName] = useState("");
-
+  const [isInboxVisible, setIsInboxVisible] = useState(false);
   let sanitizedUserName;
 
   useEffect(() => {
@@ -144,6 +145,12 @@ const MailBox = () => {
     const files = event.target.files;
     setAttachments([...attachments, ...files]);
   };
+
+  const showInbox = () => {
+    setIsComposeClicked(false);
+    setIsInboxVisible(true);
+  };
+
   return (
     <>
       <Header />
@@ -193,6 +200,7 @@ const MailBox = () => {
                       transition: "background-color 0.3s",
                       borderLeft: "solid purple 0.2rem",
                     }}
+                    onClick={showInbox}
                   >
                     Inbox
                   </a>
@@ -367,6 +375,8 @@ const MailBox = () => {
                     </Col>
                   </Row>
                 </>
+              ) : isInboxVisible ? (
+                <Inbox /> 
               ) : (
                 <div
                   style={{
@@ -378,6 +388,7 @@ const MailBox = () => {
                   <h3>Welcome to Connect! Mailbox</h3>
                 </div>
               )}
+              
             </Container>
           </Col>
         </Row>

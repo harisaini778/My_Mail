@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Container, Card, Button, Form} from 'react-bootstrap';
+import { Container, Card, Button, Form } from "react-bootstrap";
+import { RiSearch2Line, RiStarFill, RiStarLine } from 'react-icons/ri';
+
 const inboxMessageArray = [
   {
     id: 1,
@@ -66,12 +68,22 @@ const inboxMessageArray = [
 const Inbox = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedMessages, setSelectedMessages] = useState([]);
+    const [starredMessages, setStarredMessages] = useState([]);
   
     const toggleMessageSelection = (messageId) => {
       const updatedSelection = selectedMessages.includes(messageId)
         ? selectedMessages.filter((id) => id !== messageId)
         : [...selectedMessages, messageId];
       setSelectedMessages(updatedSelection);
+    };
+  
+    const toggleMessageStar = (messageId) => {
+      const isStarred = starredMessages.includes(messageId);
+      if (isStarred) {
+        setStarredMessages(starredMessages.filter((id) => id !== messageId));
+      } else {
+        setStarredMessages([...starredMessages, messageId]);
+      }
     };
   
     const filteredMessages = inboxMessageArray.filter((message) => {
@@ -83,44 +95,68 @@ const Inbox = () => {
     });
   
     return (
-      <Container>
-        <Form.Group controlId="search">
-          <Form.Control
-            type="text"
-            placeholder="Search messages"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </Form.Group>
-  
-        {filteredMessages.map((message) => (
-          <div
-            key={message.id}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "10px",
-              borderBottom: "1px solid #ccc",
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={selectedMessages.includes(message.id)}
-              onChange={() => toggleMessageSelection(message.id)}
-              style={{ marginRight: "10px" }}
-            />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: "bold" }}>{message.from}</div>
-              <div>{message.subject}</div>
+      <>
+        <div style={{ backgroundColor: "#674ea7", boxShadow: "0 2px 9px rgba(0, 0, 0, 0.15)", padding: '0.4rem' }}>
+          <Form.Group controlId="search">
+
+            <div style={{ position: 'relative', width: '300px' }}>
+              <Form.Control
+                type="text"
+                placeholder="Search messages"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  backgroundColor: 'white',
+                  border: '1px solid #ccc',
+                  borderRadius: '5px',
+                  paddingRight: '2em',
+                  width: '100%',
+                }}
+              />
+              <div style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: '10px' }}>
+                <RiSearch2Line style={{ fontSize: '1.2em', color: '#888' }} />
+              </div>
             </div>
-            <div>{message.date}</div>
-          </div>
-        ))}
-  
-        <div style={{ marginTop: "20px" }}>
-          <Button variant="info">Mark as Read</Button>
+          </Form.Group>
         </div>
-      </Container>
+  
+        <Container>
+          {filteredMessages.map((message) => (
+            <div
+              key={message.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "10px",
+                borderBottom: "1px solid #ccc",
+              }}
+            >
+              {/* Checkbox for selection */}
+              <input
+                type="checkbox"
+                checked={selectedMessages.includes(message.id)}
+                onChange={() => toggleMessageSelection(message.id)}
+                style={{ marginRight: "10px" }}
+              />
+  
+              {/* Star icon for marking as starred */}
+              <div style={{ marginRight: "10px" }}>
+                {starredMessages.includes(message.id) ? (
+                  <RiStarFill onClick={() => toggleMessageStar(message.id)} style={{ cursor: 'pointer', color: 'gold' }} />
+                ) : (
+                  <RiStarLine onClick={() => toggleMessageStar(message.id)} style={{ cursor: 'pointer' }} />
+                )}
+              </div>
+  
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: "bold" }}>{message.from}</div>
+                <div>{message.subject}</div>
+              </div>
+              <div>{message.date}</div>
+            </div>
+          ))}
+        </Container>
+      </>
     );
   };
   

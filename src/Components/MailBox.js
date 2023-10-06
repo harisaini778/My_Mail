@@ -162,6 +162,8 @@ const MailBox = () => {
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           height: "100vh",
+          backgroundColor: "#674ea7",
+          boxShadow: "0 2px 9px rgba(0, 0, 0, 0.15)",
         }}
       >
         <Row>

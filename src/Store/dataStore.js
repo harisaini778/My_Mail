@@ -1,16 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import messages from "../components/Messages";
+import inboxMessageArray from "../Components/Messages";
 
 const initialState = {
   sentMessages: [],
   draftMessages: [],
-  allMessages: [...messages], // You can populate this with the initial data
+  allMessages: [...inboxMessageArray], // You can populate this with the initial data
   starredMessages: [],
   deletedMessages: [],
   spamMessages: [],
   archiveMessages: [],
-  inboxMessages: [...messages],
+  inboxMessages: [...inboxMessageArray],
   isMessageDetailOpen: false,
   unreadMessages: [],
     inboxIsClicked: false,
@@ -27,7 +27,7 @@ export const fetchSentMessages = createAsyncThunk(
   async (userName, thunkAPI) => {
     try {
       const response = await fetch(
-        `https://mailbox-client-29c1e-default-rtdb.firebaseio.com/store/${userName}.json`
+        `https://mailboxclient-b4491-default-rtdb.firebaseio.com/store/${userName}.json`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch sent messages");
@@ -45,7 +45,7 @@ export const fetchDraftMessages = createAsyncThunk(
   async (userName, thunkAPI) => {
     try {
       const response = await fetch(
-        `https://mailbox-client-29c1e-default-rtdb.firebaseio.com/draft/${userName}.json`
+        `https://mailboxclient-b4491-default-rtdb.firebaseio.com/draft/${userName}.json`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch draft messages");

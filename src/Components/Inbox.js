@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Container, Card, Button, Form } from "react-bootstrap";
 import { RiSearch2Line, RiStarFill, RiStarLine } from "react-icons/ri";
+import { FaTrash, FaCheckSquare } from 'react-icons/fa';
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { toggleMessageDetail } from "../Store/dataStore";
@@ -38,18 +39,23 @@ const Inbox = () => {
     dispatch(toggleStarred(messageId));
   };
 
+  const handleDeleteMessage = (messageId) => {
+    // Dispatch the action to delete the message
+    dispatch(deleteMessage(messageId));
+  };
+
   const preventListGroupClick = (event) => {
     event.stopPropagation();
   };
 
-  const toggleMessageStar = (messageId) => {
-    const isStarred = starredMessages.includes(messageId);
-    if (isStarred) {
-      setStarredMessages(starredMessages.filter((id) => id !== messageId));
-    } else {
-      setStarredMessages([...starredMessages, messageId]);
-    }
-  };
+  // const toggleMessageStar = (messageId) => {
+  //   const isStarred = starredMessages.includes(messageId);
+  //   if (isStarred) {
+  //     setStarredMessages(starredMessages.filter((id) => id !== messageId));
+  //   } else {
+  //     setStarredMessages([...starredMessages, messageId]);
+  //   }
+  // };
 
   const filteredMessages = inbox.filter((message) => {
     const searchTerm = searchQuery.toLowerCase();
@@ -68,33 +74,57 @@ const Inbox = () => {
           padding: "0.4rem",
         }}
       >
-        <Form.Group controlId="search">
-          <div style={{ position: "relative", width: "300px" }}>
-            <Form.Control
-              type="text"
-              placeholder="Search messages"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                backgroundColor: "white",
-                border: "1px solid #ccc",
-                borderRadius: "5px",
-                paddingRight: "2em",
-                width: "100%",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                transform: "translateY(-50%)",
-                right: "10px",
-              }}
-            >
-              <RiSearch2Line style={{ fontSize: "1.2em", color: "#888" }} />
-            </div>
-          </div>
-        </Form.Group>
+        <Form.Group controlId="search" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+  <div style={{ position: 'relative', width: '300px' }}>
+    <Form.Control
+      type="text"
+      placeholder="Search messages"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      style={{
+        backgroundColor: 'white',
+        border: '1px solid #ccc',
+        borderRadius: '5px',
+        paddingRight: '2em',
+        width: '100%',
+      }}
+    />
+    <div
+      style={{
+        position: 'absolute',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        right: '10px',
+      }}
+    >
+      <RiSearch2Line style={{ fontSize: '1.2em', color: '#888' }} />
+    </div>
+  </div>
+
+  <div style={{ display: 'flex', alignItems: 'center' }}>
+  <div 
+  style={{ 
+    backgroundColor: '#d32213', 
+    borderRadius: '50%', 
+    padding: '5px', 
+    marginRight: '40px', 
+    boxShadow: '0px 4px 7px', 
+    cursor: 'pointer' 
+  }}
+  onClick={(event) => {
+    event.stopPropagation();
+    handleDeleteMessage(message.id);
+  }}
+>
+  <FaTrash style={{ fontSize: '1.5em', color: 'black' }} />
+</div>
+    <div style={{ backgroundColor: '#00d062', borderRadius: '50%', padding: '5px', boxShadow: '0px 4px 7px' }}>
+    <FaCheckSquare style={{ fontSize: '1.5em', cursor: 'pointer' }} />
+    
+    </div>
+  </div>
+</Form.Group>
+
       </div>
 
       <Container>
@@ -107,6 +137,7 @@ const Inbox = () => {
             style={{
               display: "flex",
               alignItems: "center",
+              justifyItems: "space-around",
               padding: "10px",
               borderBottom: "1px solid #ccc",
             }}
@@ -121,33 +152,32 @@ const Inbox = () => {
             />
 
             {/* Star icon for marking as starred */}
-            <div style={{ marginRight: "2rem", marginLeft: "2rem" }}>
-              {starredMessages.includes(message.id) ? (
+            <div style={{ marginRight: "2rem", marginLeft: "2rem" }}  onClick={(event) => toggleStar(message.id, event)}>
+              {message.starred ? (
+                <RiStarLine
+                style={{ cursor: "pointer" }}
+              />
+              ) : (
                 <RiStarFill
-                  onClick={() => toggleMessageStar(message.id)}
                   style={{ cursor: "pointer", color: "gold" }}
                 />
-              ) : (
-                <RiStarLine
-                  onClick={() => toggleMessageStar(message.id)}
-                  style={{ cursor: "pointer" }}
-                />
+                
               )}
             </div>
 
             <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <div style={{ fontWeight: "bold", textAlign: "center" }}>
-                {message.from}
-              </div>
-              <div style={{ textAlign: "center" }}>{message.subject}</div>
-              <div style={{ textAlign: "right" }}>{message.date}</div>
-            </div>
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ fontWeight: "bold", textAlign: "center" }}>
+          {message.from}
+        </div>
+        <div style={{ textAlign: "center" }}>{message.subject}</div>
+        <div style={{ textAlign: "right" }}>{message.date}</div>
+      </div>
           </div>
         ))}
       </Container>

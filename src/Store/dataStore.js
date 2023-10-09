@@ -255,6 +255,7 @@ const dataStore = createSlice({
 });
 
 export const {
+  toggleMessageSelection,
   setSentMessages,
   setDraftMessages,
   toggleStarred,

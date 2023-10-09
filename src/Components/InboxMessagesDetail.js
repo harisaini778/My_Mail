@@ -31,6 +31,8 @@ const InboxMessagesDetail = ({ messageId }) => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          padding: "10px",
+          borderBottom: "1px solid #ccc",
         }}
       >
         <div style={{ fontWeight: "bold", textAlign: "center" }}>

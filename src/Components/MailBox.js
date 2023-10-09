@@ -15,9 +15,9 @@ import "react-quill/dist/quill.snow.css";
 import Header from "./Header";
 import Inbox from "./Inbox";
 import bgImage from "../assests/bgMailbox.jpg";
-import { deletedMessages } from "../Store/dataStore";
+import { deletedMessages, toggleDeleteIsClicked, deleteIsClicked, inboxIsClicked, toggleInboxIsClicked } from "../Store/dataStore";
 import { useSelector, useDispatch } from "react-redux";
-
+import TrashMessages from "./TrashMessages";
 
 const modules = {
   toolbar: [
@@ -57,6 +57,19 @@ const MailBox = () => {
   let sanitizedUserName;
   const trash = useSelector((state)=>state.dataStore.deletedMessages);
   const trashCount = trash.length;
+
+  const trashIsClicked = useSelector((state)=>state.dataStore.deleteIsClicked);
+  const dispatch = useDispatch();
+
+  const inboxIsClicked = useSelector((state) => state.dataStore.inboxIsClicked);
+
+
+  const trashHandler = () => {
+    console.log("delete is Clicked:", trashIsClicked );
+    dispatch(toggleDeleteIsClicked());
+    console.log("delete is Clicked:", trashIsClicked );
+  }
+
   useEffect(() => {
     const emailId = localStorage.getItem("email");
     const parts = emailId.split("@");
@@ -154,8 +167,9 @@ const MailBox = () => {
   };
 
   const showInbox = () => {
-    setIsComposeClicked(false);
-    setIsInboxVisible(true);
+    // setIsComposeClicked(false);
+    // setIsInboxVisible(true);
+    dispatch(toggleInboxIsClicked());
   };
 
   return (
@@ -197,7 +211,7 @@ const MailBox = () => {
                 }}
               >
                 <li style={{ marginBottom: "10px" }}>
-                  <a
+                  <div
                     href="#inbox"
                     style={{
                       textDecoration: "none",
@@ -206,11 +220,12 @@ const MailBox = () => {
                       display: "block",
                       transition: "background-color 0.3s",
                       borderLeft: "solid purple 0.2rem",
+                      cursor: "pointer"
                     }}
                     onClick={showInbox}
                   >
                     Inbox
-                  </a>
+                  </div>
                 </li>
                 <li style={{ marginBottom: "10px" }}>
                   <a
@@ -268,7 +283,9 @@ const MailBox = () => {
                       display: "block",
                       borderLeft: "solid purple 0.2rem",
                       transition: "background-color 0.3s",
+                      cursor:"pointer"
                     }}
+                    onClick={trashHandler}
                   >
                     Trash
                   </div>
@@ -387,8 +404,11 @@ const MailBox = () => {
                     </Col>
                   </Row>
                 </>
-              ) : isInboxVisible ? (
+              ) : inboxIsClicked ? (
                 <Inbox /> 
+              ) :
+              trashIsClicked  ? (
+                <TrashMessages /> 
               ) : (
                 <div
                   style={{

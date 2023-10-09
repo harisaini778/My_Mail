@@ -217,15 +217,7 @@ const dataStore = createSlice({
       state.sentIsClicked = false;
       state.draftIsClicked = false;
     },
-    toggleDeleteIsClicked: (state) => {
-      state.deleteIsClicked = !state.deleteIsClicked;
-      state.spamIsClicked = false;
-      state.starIsClicked = false;
-      state.inboxIsClicked = false;
-      state.archieveIsClicked = false;
-      state.sentIsClicked = false;
-      state.draftIsClicked = false;
-    },
+   
     toggleSentIsClicked: (state) => {
       state.sentIsClicked = !state.sentIsClicked;
       state.deleteIsClicked = false;

@@ -70,25 +70,31 @@ const dataStore = createSlice({
     setDraftMessages: (state, action) => {
       state.draftMessages = action.payload;
     },
-    toggleStarred: (state, action) => {
-      const messageId = action.payload;
-      const messageIndex = state.allMessages.findIndex(
-        (message) => message.id === messageId
-      );
-      if (messageIndex !== -1) {
-        state.allMessages[messageIndex].starred = !state.allMessages[
-          messageIndex
-        ].starred;
+    // Inside dataStore slice
 
-        if (state.starredMessages.includes(messageId)) {
-          state.starredMessages = state.starredMessages.filter(
-            (msgId) => msgId !== messageId
-          );
-        } else {
-          state.starredMessages.push(messageId);
-        }
-      }
-    },
+toggleStarred: (state, action) => {
+  const messageId = action.payload;
+  const message = state.allMessages.find((message) => message.id === messageId);
+
+  if (message) {
+    message.starred = !message.starred;
+    console.log('in data stored', message.starred);
+    if (state.sentMessages.includes(messageId)) {
+      state.sentMessages = state.sentMessages.map((msgId) =>
+        msgId === messageId ? { ...message, starred: !message.starred } : msgId
+      );
+    }
+
+    if (state.starredMessages.includes(messageId)) {
+      state.starredMessages = state.starredMessages.filter(
+        (msgId) => msgId !== messageId
+      );
+    } else {
+      state.starredMessages.push(messageId);
+    }
+  }
+},
+
     deleteMessage: (state, action) => {
       const messageId = action.payload;
       const messageIndex = state.allMessages.findIndex(
@@ -255,7 +261,6 @@ const dataStore = createSlice({
 });
 
 export const {
-  toggleMessageSelection,
   setSentMessages,
   setDraftMessages,
   toggleStarred,

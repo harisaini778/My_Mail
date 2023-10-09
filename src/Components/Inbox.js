@@ -17,6 +17,7 @@ import {
 } from "../Store/dataStore";
 import InboxMessagesDetail from "./InboxMessagesDetail";
 
+
 const Inbox = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMessages, setSelectedMessages] = useState([]);
@@ -107,7 +108,74 @@ const Inbox = () => {
           </div>
 
           <div style={{ display: "flex", alignItems: "center" }}>
+            
             <div
+              style={{
+                backgroundColor: "#00d062",
+                borderRadius: "50%",
+                padding: "5px",
+                boxShadow: "0px 4px 7px",
+              }}
+              title="Select All"
+            >
+              <FaCheckSquare style={{ fontSize: "1.5em", cursor: "pointer" }} />
+            </div>
+          </div>
+        </Form.Group>
+      </div>
+
+      <Container>
+        {selectedMessageId && isMessageDetailOpen && (
+          <InboxMessagesDetail messageId={selectedMessageId} />
+        )}
+        {!isMessageDetailOpen &&
+          filteredMessages.map((message) => (
+            <div
+              key={message.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyItems: "space-around",
+                padding: "10px",
+                borderBottom: "1px solid #ccc",
+              }}
+              onClick={() => handleListItemClick(message.id)}
+            >
+              {/* Checkbox for selection */}
+              <input
+                type="checkbox"
+                checked={selectedMessages.includes(message.id)}
+                onChange={() => toggleMessageSelection(message.id)}
+                style={{ marginRight: "10px" }}
+                title="Select Mail"
+              />
+
+              {/* Star icon for marking as starred */}
+              <div
+                style={{ marginRight: "2rem", marginLeft: "2rem" }}
+                onClick={(event) => toggleStar(message.id, event, message)}
+                title="Mark as Star"
+              >
+                {message.starred ? (
+                  <RiStarLine style={{ cursor: "pointer" }} />
+                ) : (
+                  <RiStarFill style={{ cursor: "pointer", color: "gold" }} />
+                )}
+              </div>
+                    
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div style={{ fontWeight: "bold", textAlign: "center" }}>
+                  {message.from}
+                </div>
+                <div style={{ textAlign: "center" }}>{message.subject}</div>
+                <div style={{ textAlign: "right" }}>{message.date}</div>
+                <div
               style={{
                 backgroundColor: "#3498db",
                 borderRadius: "50%",
@@ -172,80 +240,16 @@ const Inbox = () => {
               }}
               onClick={(event) => {
                 event.stopPropagation();
-                handleDeleteMessage(selectedMessageId);
+                handleDeleteMessage(message.id);
               }}
               title="Delete"
             >
               <FaTrash style={{ fontSize: "1.5em", color: "black" }} />
             </div>
-            <div
-              style={{
-                backgroundColor: "#00d062",
-                borderRadius: "50%",
-                padding: "5px",
-                boxShadow: "0px 4px 7px",
-              }}
-              title="Select All"
-            >
-              <FaCheckSquare style={{ fontSize: "1.5em", cursor: "pointer" }} />
-            </div>
-          </div>
-        </Form.Group>
-      </div>
-
-      <Container>
-        {selectedMessageId && isMessageDetailOpen && (
-          <InboxMessagesDetail messageId={selectedMessageId} />
-        )}
-        {!isMessageDetailOpen &&
-          filteredMessages.map((message) => (
-            <div
-              key={message.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyItems: "space-around",
-                padding: "10px",
-                borderBottom: "1px solid #ccc",
-              }}
-              onClick={() => handleListItemClick(message.id)}
-            >
-              {/* Checkbox for selection */}
-              <input
-                type="checkbox"
-                checked={selectedMessages.includes(message.id)}
-                onChange={() => toggleMessageSelection(message.id)}
-                style={{ marginRight: "10px" }}
-                title="Select Mail"
-              />
-
-              {/* Star icon for marking as starred */}
-              <div
-                style={{ marginRight: "2rem", marginLeft: "2rem" }}
-                onClick={(event) => toggleStar(message.id, event, message)}
-                title="Mark as Star"
-              >
-                {message.starred ? (
-                  <RiStarLine style={{ cursor: "pointer" }} />
-                ) : (
-                  <RiStarFill style={{ cursor: "pointer", color: "gold" }} />
-                )}
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <div style={{ fontWeight: "bold", textAlign: "center" }}>
-                  {message.from}
-                </div>
-                <div style={{ textAlign: "center" }}>{message.subject}</div>
-                <div style={{ textAlign: "right" }}>{message.date}</div>
               </div>
             </div>
+
+            
           ))}
       </Container>
     </>

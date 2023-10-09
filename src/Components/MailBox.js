@@ -7,6 +7,7 @@ import {
   InputGroup,
   Dropdown,
   Button,
+  Stack
 } from "react-bootstrap";
 import { MdDelete, MdDrafts, MdSend, MdArrowBack } from "react-icons/md";
 import ReactQuill from "react-quill";
@@ -14,6 +15,9 @@ import "react-quill/dist/quill.snow.css";
 import Header from "./Header";
 import Inbox from "./Inbox";
 import bgImage from "../assests/bgMailbox.jpg";
+import { deletedMessages } from "../Store/dataStore";
+import { useSelector, useDispatch } from "react-redux";
+
 
 const modules = {
   toolbar: [
@@ -51,7 +55,8 @@ const MailBox = () => {
   const [UserName, setUserName] = useState("");
   const [isInboxVisible, setIsInboxVisible] = useState(false);
   let sanitizedUserName;
-
+  const trash = useSelector((state)=>state.dataStore.deletedMessages);
+  const trashCount = trash.length;
   useEffect(() => {
     const emailId = localStorage.getItem("email");
     const parts = emailId.split("@");
@@ -79,6 +84,8 @@ const MailBox = () => {
         console.error("Error updating username in Firebase:", error);
       });
   }, []);
+
+ 
 
   const SendMailHandler = () => {
     const firebaseSentEmailsEndpoint = `https://mailboxclient-b4491-default-rtdb.firebaseio.com/users/sent/${sanitizedUserName}.json`;
@@ -162,8 +169,6 @@ const MailBox = () => {
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           height: "100vh",
-          backgroundColor: "#674ea7",
-          boxShadow: "0 2px 9px rgba(0, 0, 0, 0.15)",
         }}
       >
         <Row>
@@ -253,7 +258,8 @@ const MailBox = () => {
                   </a>
                 </li>
                 <li>
-                  <a
+                  <Stack direction="horizontal" gap="2">
+                  <div
                     href="#trash"
                     style={{
                       textDecoration: "none",
@@ -265,7 +271,11 @@ const MailBox = () => {
                     }}
                   >
                     Trash
-                  </a>
+                  </div>
+                  <div className="me-auto">
+                    {trash.length}
+                  </div>
+                  </Stack>
                 </li>
               </ul>
             </div>

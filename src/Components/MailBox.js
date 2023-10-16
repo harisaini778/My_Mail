@@ -15,9 +15,13 @@ import "react-quill/dist/quill.snow.css";
 import Header from "./Header";
 import Inbox from "./Inbox";
 import bgImage from "../assests/bgMailbox.jpg";
-import { deletedMessages, toggleDeleteIsClicked, deleteIsClicked, inboxIsClicked, toggleInboxIsClicked } from "../Store/dataStore";
+import {
+  deletedMessages, toggleDeleteIsClicked, deleteIsClicked, inboxIsClicked, toggleInboxIsClicked, sentIsClicked,
+  toggleSentIsClicked,sentMessages,draftMessages,draftIsClicked,toggleDraftIsClicked} from "../Store/dataStore";
 import { useSelector, useDispatch } from "react-redux";
 import TrashMessages from "./TrashMessages";
+import SentMessages from "./SentMessages";
+import DraftMessages from "./DraftMessages";
 
 const modules = {
   toolbar: [
@@ -54,14 +58,32 @@ const MailBox = () => {
   const [isComposeClicked, setIsComposeClicked] = useState(false);
   const [UserName, setUserName] = useState("");
   const [isInboxVisible, setIsInboxVisible] = useState(false);
-  let sanitizedUserName;
+  const [CCBCCValue, setCCBCCValue] = useState("");
+
   const trash = useSelector((state)=>state.dataStore.deletedMessages);
   const trashCount = trash.length;
 
   const trashIsClicked = useSelector((state)=>state.dataStore.deleteIsClicked);
   const dispatch = useDispatch();
 
+  const inboxMessages  = useSelector((state)=>state.dataStore.allMessages);
+  const inbox  =  inboxMessages ? Object.values(inboxMessages) : [];
+  const inboxCount = inbox.length;
   const inboxIsClicked = useSelector((state) => state.dataStore.inboxIsClicked);
+
+
+  const sentMessages = useSelector((state) => state.dataStore.sentMessages);
+  const sent = sentMessages ? Object.values(sentMessages) : [];
+  const sentCount = sent.length;
+  const sentIsClicked = useSelector((state)=>state.dataStore.sentIsClicked);
+
+
+  const draftMessages = useSelector((state) => state.dataStore.draftMessages);
+  const draft = draftMessages ? Object.values(draftMessages) : [];
+  const draftCount = draft.length;
+  const draftIsClicked = useSelector((state) => state.dataStore.draftIsClicked);
+
+      const isoDateTime = new Date().toISOString();
 
 
   const trashHandler = () => {
@@ -70,49 +92,61 @@ const MailBox = () => {
     console.log("delete is Clicked:", trashIsClicked );
   }
 
+  const sentBoxDisplayHandler = () => {
+    dispatch(toggleSentIsClicked());
+  }
+
+  const draftBoxDisplayHandler = () => {
+    dispatch(toggleDraftIsClicked());
+  }
+ 
   useEffect(() => {
     const emailId = localStorage.getItem("email");
     const parts = emailId.split("@");
     const name = parts[0];
     setUserName(name);
     localStorage.setItem("userName", name);
-
-    sanitizedUserName = UserName.replace(/[.#$[\]/]/g, '_'); // Replace special characters with underscores
-
-    // Update the username in Firebase
-    const firebaseUserEndpoint = `https://mailboxclient-b4491-default-rtdb.firebaseio.com/users/${sanitizedUserName}.json`;
-
-    fetch(firebaseUserEndpoint, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username: name }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Username updated in Firebase:", data);
-      })
-      .catch((error) => {
-        console.error("Error updating username in Firebase:", error);
-      });
   }, []);
+  
+  useEffect(() => {
+    const parts = to.split("@");
+    const recipientName = parts[0];
+    localStorage.setItem("recipientName", recipientName);
+  }, [to]);
 
- 
+  const uniqueId = Math.floor(Math.random() * 100 + 1);
+
+  const ClearFormFieldHandler = () => {
+    setTo("");
+    setAttachments("");
+    setCCBCCOption("");
+    setCCBCCValue("");
+    setMessage("");
+    setSubject("");
+  }
 
   const SendMailHandler = () => {
-    const firebaseSentEmailsEndpoint = `https://mailboxclient-b4491-default-rtdb.firebaseio.com/users/sent/${sanitizedUserName}.json`;
+
+    const recipientName = localStorage.getItem("recipientName");
+
+    const emailKey = `email_${recipientName}_${uniqueId}`
+
+
+    const firebaseSentEmailsEndpoint = `https://connect-mails-default-rtdb.firebaseio.com/emails/${recipientName}/${emailKey}.json`;
 
     const emailData = {
       to,
       ccBccOption,
+      CCBCCValue,
       subject,
       message,
       attachments,
+      id : uniqueId,
+      date : isoDateTime,
     };
 
     fetch(firebaseSentEmailsEndpoint, {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
@@ -125,28 +159,60 @@ const MailBox = () => {
       .catch((error) => {
         console.error("Error sending email:", error);
       });
+    
+    const userName = localStorage.getItem("userName");
+
+    const sentKey = `sent_${userName}_${uniqueId}`;
+
+     fetch(`https://connect-mails-default-rtdb.firebaseio.com/sent/${userName}/${sentKey}.json`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(emailData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Email sent successfully:", data);
+        alert(`You have successfully sent mail ${to} !`);
+        ClearFormFieldHandler();
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
+
+
+    
   };
 
   const DeleteMailHandler = () => {
-    // Implement the logic to delete the email here
+    ClearFormFieldHandler();
     console.log("Deleting email");
   };
 
-  // const firebaseDraftsEmailsEndpoint = `https://mailboxclient-b4491-default-rtdb.firebaseio.com/drafts/${sanitizedUserName}.json`;
+  
 
   const SaveMailHandler = () => {
-    const firebaseDraftsEmailsEndpoint = `https://mailboxclient-b4491-default-rtdb.firebaseio.com/users/drafts/${sanitizedUserName}.json`;
+
+    const userName = localStorage.getItem("userName");
+
+    const draftKey = `draft_${userName}_${uniqueId}`;
+
+    const firebaseDraftsEmailsEndpoint = `https://connect-mails-default-rtdb.firebaseio.com/drafts/${userName}/${draftKey}.json`;
 
     const emailData = {
       to,
       ccBccOption,
+      CCBCCValue,
       subject,
       message,
       attachments,
+      id: uniqueId,
+      date : isoDateTime,
     };
 
     fetch(firebaseDraftsEmailsEndpoint, {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
@@ -155,6 +221,8 @@ const MailBox = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log("Email saved as draft:", data);
+        alert("Your message is saved in the draftbox successfully!");
+        ClearFormFieldHandler();
       })
       .catch((error) => {
         console.error("Error saving email as draft:", error);
@@ -211,7 +279,8 @@ const MailBox = () => {
                 }}
               >
                 <li style={{ marginBottom: "10px" }}>
-                  <div
+                  <Stack direction="horizontal" gap={5}>
+                    <div
                     href="#inbox"
                     style={{
                       textDecoration: "none",
@@ -225,10 +294,17 @@ const MailBox = () => {
                     onClick={showInbox}
                   >
                     Inbox
-                  </div>
+                    </div>
+                    <div>
+                      {inboxCount}
+                    </div>
+                        </Stack>
                 </li>
+              
+                  
                 <li style={{ marginBottom: "10px" }}>
-                  <a
+                  <Stack direction="horizontal" gap={5}>
+                     <div onClick={sentBoxDisplayHandler}
                     href="#sent"
                     style={{
                       textDecoration: "none",
@@ -240,10 +316,14 @@ const MailBox = () => {
                     }}
                   >
                     Sent
-                  </a>
+                  </div>
+                  <div>{sentCount}</div>
+                  </Stack>
+                 
                 </li>
                 <li style={{ marginBottom: "10px" }}>
-                  <a
+                  <Stack direction="horizontal" gap={5}>
+                        <div onClick={draftBoxDisplayHandler}
                     href="#drafts"
                     style={{
                       textDecoration: "none",
@@ -255,9 +335,14 @@ const MailBox = () => {
                     }}
                   >
                     Drafts
-                  </a>
+                  </div>
+                    <div>
+                      {draftCount}
+                    </div>
+                  </Stack>
+              
                 </li>
-                <li style={{ marginBottom: "10px" }}>
+                {/* <li style={{ marginBottom: "10px" }}>
                   <a
                     href="#spam"
                     style={{
@@ -271,8 +356,8 @@ const MailBox = () => {
                   >
                     Spam
                   </a>
-                </li>
-                <li>
+                </li> */}
+                {/* <li>
                   <Stack direction="horizontal" gap="2">
                   <div
                     href="#trash"
@@ -293,7 +378,7 @@ const MailBox = () => {
                     {trash.length}
                   </div>
                   </Stack>
-                </li>
+                </li> */}
               </ul>
             </div>
           </Col>
@@ -346,10 +431,9 @@ const MailBox = () => {
                           </Dropdown.Menu>
                         </Dropdown>
                         <Form.Control
-                          type="email"
-                          placeholder={`${
-                            ccBccOption === "cc" ? "CC" : "BCC"
-                          } email`}
+                          type="text"
+                          value = {CCBCCValue}
+                          onChange= {(event)=>setCCBCCValue(event.target.value)}
                         />
                       </InputGroup>
                     </Form.Group>
@@ -409,7 +493,17 @@ const MailBox = () => {
               ) :
               trashIsClicked  ? (
                 <TrashMessages /> 
-              ) : (
+                  ) :
+                    
+                    sentIsClicked ? (
+                    <SentMessages/>
+                  ) :
+                      
+                      draftIsClicked ? (
+                      <DraftMessages/>
+                      )
+                    
+                    : (
                 <div
                   style={{
                     backgroundColor: "smokewhite",

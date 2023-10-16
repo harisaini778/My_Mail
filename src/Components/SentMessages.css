@@ -1,0 +1,16 @@
+.truncate-text-sent {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.list-group-sent {
+    border: 1px solid #ccc;
+    margin: 10px;
+}
+
+.list-group-sent-content {
+
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+}

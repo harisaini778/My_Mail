@@ -42,8 +42,10 @@ import React from "react";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
 //icons
 import logo from "../assests/logo.png";
-import HomeIcon from '../assests/Home.png';
 import { BsArrowUpRight } from 'react-icons/bs';
+import { MdVerifiedUser,MdHomeFilled } from "react-icons/md";
+import { Stack } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const navbarStyle = {
   backgroundColor: '#400090',
@@ -81,6 +83,18 @@ const brandTextStyle = {
 };
 
 const Header = () => {
+
+  const userEmail = localStorage.getItem("email");
+  const navigate = useNavigate();
+
+  const logOutHandler = () => {
+    localStorage.removeItem("email");
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("recipientName");
+    navigate("/");
+  }
+
   return (
     <>
       <Navbar expand="lg" variant="light" style={navbarStyle}>
@@ -129,10 +143,26 @@ const Header = () => {
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
-        <Nav style={{ marginLeft: 'auto' }}>
-            <Nav.Link href="#inbox">User</Nav.Link>
-            <img src={HomeIcon} alt="home-icon" style={{width: '30px', height: '30px'}}/>
-            <Nav.Link href="#home">Home</Nav.Link>
+            <Nav style={{ marginLeft: 'auto' }}>
+              
+                <Nav.Link>
+                <Stack direction="horizontal" gap={2}>
+                <div><MdHomeFilled size={24}/></div>
+                <div>Home</div>
+                </Stack>
+              </Nav.Link>
+
+              <Nav.Link>
+              <Stack direction="horizontal" gap={2}>
+                <div><MdVerifiedUser size={24} /></div>
+                <div>{userEmail}</div>
+                </Stack>
+              </Nav.Link>
+              
+              <Button onClick={logOutHandler} className="bg bg-warning ml-2">
+                LogOut
+              </Button>
+
           </Nav>
         </Navbar.Collapse>
       </Container>

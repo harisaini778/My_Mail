@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Container, Form } from "react-bootstrap";
 import { RiSearch2Line, RiStarFill, RiStarLine } from "react-icons/ri";
 import {
@@ -13,7 +13,7 @@ import {
   toggleMessageDetail,
   toggleStarred,
   deleteMessage,
-  inboxMessages,
+  inboxMessages,fetchAllMessages
 } from "../Store/dataStore";
 import InboxMessagesDetail from "./InboxMessagesDetail";
 
@@ -28,6 +28,12 @@ const Inbox = () => {
 
   // Using Redux
   const dispatch = useDispatch();
+
+  useEffect(()=>{
+    dispatch(fetchAllMessages());
+  },[dispatch]);
+
+
   const inbox = useSelector((state) => state.dataStore.allMessages);
 
   const handleListItemClick = (messageId) => {
@@ -59,7 +65,7 @@ const Inbox = () => {
   const filteredMessages = inbox.filter((message) => {
     const searchTerm = searchQuery.toLowerCase();
     return (
-      message.from.toLowerCase().includes(searchTerm) ||
+      //message.from.toLowerCase().includes(searchTerm) ||
       message.subject.toLowerCase().includes(searchTerm)
     );
   });

@@ -1,15 +1,23 @@
+
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { toggleMessageDetail } from "../Store/dataStore";
+import { fetchAllMessages, toggleMessageDetail,allMessages } from "../Store/dataStore";
 import { Container, Button } from "react-bootstrap";
 import { BsArrowLeft } from "react-icons/bs";
+import { useEffect } from "react";
 
 const InboxMessagesDetail = ({ messageId }) => {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
+
+  useEffect(() => { 
+    dispatch(fetchAllMessages());
+  }, [dispatch]);
+
+
   const messageDetail = useSelector((state) =>
-    state.dataStore.inboxMessages.find((message) => (messageId === message.id))
+    state.dataStore.allMessages.find((message) => (messageId === message.id))
   );
 
   if (!messageDetail) return null;
@@ -17,7 +25,7 @@ const InboxMessagesDetail = ({ messageId }) => {
   //for the back arrow click
   const handleBackClick = () => {
     dispatch(toggleMessageDetail());
-    navigate("#inbox");
+    navigate("/MailBox");
   };
 
   return (
